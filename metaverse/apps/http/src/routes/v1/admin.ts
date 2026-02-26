@@ -8,7 +8,7 @@ adminRouter.use(adminMiddleware)
 adminRouter.post("/element", async (req, res) => {
     const parsedData = CreateElementSchema.safeParse(req.body)
     if (!parsedData.success) {
-        res.status(400).json({message: "Validation failed"})
+        res.status(400).json({ message: "Validation failed" })
         return
     }
 
@@ -29,7 +29,7 @@ adminRouter.post("/element", async (req, res) => {
 adminRouter.put("/element/:elementId", (req, res) => {
     const parsedData = UpdateElementSchema.safeParse(req.body)
     if (!parsedData.success) {
-        res.status(400).json({message: "Validation failed"})
+        res.status(400).json({ message: "Validation failed" })
         return
     }
     client.element.update({
@@ -40,13 +40,13 @@ adminRouter.put("/element/:elementId", (req, res) => {
             imageUrl: parsedData.data.imageUrl
         }
     })
-    res.json({message: "Element updated"})
+    res.json({ message: "Element updated" })
 })
 
 adminRouter.post("/avatar", async (req, res) => {
     const parsedData = CreateAvatarSchema.safeParse(req.body)
     if (!parsedData.success) {
-        res.status(400).json({message: "Validation failed"})
+        res.status(400).json({ message: "Validation failed" })
         return
     }
     const avatar = await client.avatar.create({
@@ -55,32 +55,37 @@ adminRouter.post("/avatar", async (req, res) => {
             imageUrl: parsedData.data.imageUrl
         }
     })
-    res.json({avatarId: avatar.id})
+    res.json({ avatarId: avatar.id })
 })
 
-// adminRouter.post("/map", async (req, res) => {
-//     const parsedData = CreateMapSchema.safeParse(req.body)
-//     if (!parsedData.success) {
-//         res.status(400).json({message: "Validation failed"})
-//         return
-//     }
-//     const map = await client.map.create({
-//         data: {
-//             name: parsedData.data.name,
-//             width: parsedData.data.dimensions.split("x")[0],
-//             height: parsedData.data.dimensions.split("x")[1],
-//             thumbnail: parsedData.data.thumbnail,
-//             mapElements: {
-//                 create: parsedData.data.defaultElements.map(e => ({
-//                     elementId: e.elementId,
-//                     x: e.x,
-//                     y: e.y
-//                 }))
-//             }
-//         }
-//     })
+adminRouter.post("/map", async (req, res) => {
+    const parsedData = CreateMapSchema.safeParse(req.body)
+    if (!parsedData.success) {
+        res.status(400).json({ message: "Validation failed" })
+        return
+    }
+    try {
+        const map = await client.map.create({
+            data: {
+                name: parsedData.data.name,
+                width: Number(parsedData.data.dimensions.split("x")[0]),
+                height: Number(parsedData.data.dimensions.split("x")[1]),
+                thumbnail: parsedData.data.thumbnail,
+                map: {
+                    create: parsedData.data.defaultElements.map(e => ({
+                        elementId: e.elementId,
+                        x: e.x,
+                        y: e.y
+                    }))
+                }
+            }
+        })
 
-//     res.json({
-//         id: map.id
-//     })
-// })
+        res.json({
+            id: map.id
+        })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: "Internal server error" })
+    }
+})
