@@ -107,5 +107,5 @@ router.get("/avatars", async (req, res) => {
 })
 
 router.use("/users", userRouter)
-router.use("/spaces", spaceRouter)
+router.use("/space", spaceRouter)
 router.use("/admin", adminRouter)

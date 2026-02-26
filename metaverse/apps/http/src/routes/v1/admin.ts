@@ -26,13 +26,13 @@ adminRouter.post("/element", async (req, res) => {
     })
 })
 
-adminRouter.put("/element/:elementId", (req, res) => {
+adminRouter.put("/element/:elementId", async (req, res) => {
     const parsedData = UpdateElementSchema.safeParse(req.body)
     if (!parsedData.success) {
         res.status(400).json({message: "Validation failed"})
         return
     }
-    client.element.update({
+    await client.element.update({
         where: {
             id: req.params.elementId
         },
@@ -58,29 +58,29 @@ adminRouter.post("/avatar", async (req, res) => {
     res.json({avatarId: avatar.id})
 })
 
-// adminRouter.post("/map", async (req, res) => {
-//     const parsedData = CreateMapSchema.safeParse(req.body)
-//     if (!parsedData.success) {
-//         res.status(400).json({message: "Validation failed"})
-//         return
-//     }
-//     const map = await client.map.create({
-//         data: {
-//             name: parsedData.data.name,
-//             width: parsedData.data.dimensions.split("x")[0],
-//             height: parsedData.data.dimensions.split("x")[1],
-//             thumbnail: parsedData.data.thumbnail,
-//             mapElements: {
-//                 create: parsedData.data.defaultElements.map(e => ({
-//                     elementId: e.elementId,
-//                     x: e.x,
-//                     y: e.y
-//                 }))
-//             }
-//         }
-//     })
+adminRouter.post("/map", async (req, res) => {
+    const parsedData = CreateMapSchema.safeParse(req.body)
+    if (!parsedData.success) {
+        res.status(400).json({message: "Validation failed"})
+        return
+    }
+    const map = await client.map.create({
+        data: {
+            name: parsedData.data.name,
+            width: parseInt(parsedData.data.dimensions.split("x")[0] ?? "0"),
+            height: parseInt(parsedData.data.dimensions.split("x")[1] ?? "0"),
+            thumbnail: parsedData.data.thumbnail,
+            map: {
+                create: parsedData.data.defaultElements.map(e => ({
+                    elementId: e.elementId,
+                    x: e.x,
+                    y: e.y
+                }))
+            }
+        }
+    })
 
-//     res.json({
-//         id: map.id
-//     })
-// })
+    res.json({
+        id: map.id
+    })
+})
