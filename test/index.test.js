@@ -326,7 +326,7 @@ describe('Space dashboard enpoint', () => {
             "name": "100 person interview room",
             "thumbnail": "https://thumbnail.com/a.png",
             "dimensions": "100x200",
-            "map": [{
+            "defaultElements": [{
                 elementId: elements1Id,
                 x: 20,
                 y: 20
@@ -415,12 +415,12 @@ describe('Space dashboard enpoint', () => {
     })
 
     test('user should not be able to delete a space created by someone other user', async () => {
-        const res = await axios.delete(`${BACKEND_URL}/api/v1/space/randomid`, {
+        const res = await axios.delete(`${BACKEND_URL}/api/v1/space/${spaceId}`, {
             headers: {
-                authorization: `Bearer ${usertoken}`
+                authorization: `Bearer ${admintoken}`
             }
         })
-        expect(res.status).toBe(400)
+        expect(res.status).toBe(403)
     })
 
     test('admin has no space initially', async () => {

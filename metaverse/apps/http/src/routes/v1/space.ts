@@ -28,7 +28,7 @@ spaceRouter.post("/", userMiddleware, async (req, res) => {
         where: {
             id: parsedData.data.mapId
         }, select: {
-            MapElements: true,
+            map: true,
             width: true,
             height: true
         }
@@ -47,7 +47,7 @@ spaceRouter.post("/", userMiddleware, async (req, res) => {
         });
 
         await client.spaceElements.createMany({
-            data: map.mapElements.map((e:any) => ({
+            data: map.map.map((e:any) => ({
                 spaceId: space.id,
                 elementId: e.elementId,
                 x: e.x!,
@@ -147,13 +147,14 @@ spaceRouter.post("/element", userMiddleware, async (req, res) => {
         }
     })
 
-    if(req.body.x < 0 || req.body.y < 0 || req.body.x > space?.width! || req.body.y > space?.height!) {
-        return res.status(400).json({message: "Point is outside of the boundary"})
-    }
-
     if (!space) {
         return res.status(400).json({message: "Space not found"})
     }
+
+    if(req.body.x < 0 || req.body.y < 0 || req.body.x > space.width || req.body.y > space.height) {
+        return res.status(400).json({message: "Point is outside of the boundary"})
+    }
+
     await client.spaceElements.create({
         data: {
             spaceId: req.body.spaceId,
